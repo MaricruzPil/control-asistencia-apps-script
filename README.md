@@ -20,6 +20,15 @@ El sistema permite seleccionar una sesión, cargar la lista de participantes, ma
 - **Git**: control de versiones local.
 - **GitHub**: alojamiento remoto del repositorio.
 
+## Uso de skills de Codex
+
+Durante el desarrollo se utilizaron skills locales de Codex como apoyo metodológico para revisar y mejorar la interfaz de la Web App.
+
+- **frontend-design-codex**: se utilizó para orientar el rediseño visual de la interfaz, cuidando jerarquía, responsive design, accesibilidad, estados visuales y consistencia de componentes.
+- **ui-ux**: se utilizó como criterio de revisión UX/UI para evaluar que la aplicación fuera clara, usable, mobile-first y adecuada para el flujo principal de pasar lista.
+
+Estas skills no forman parte del código ejecutado por Google Apps Script ni son dependencias de la aplicación publicada. Su función fue apoyar el proceso de diseño, revisión y toma de decisiones durante el desarrollo.
+
 ## Estructura del proyecto
 
 - `Code.gs`: contiene `doGet()`, función que sirve `index.html` como entrada de la Web App.
