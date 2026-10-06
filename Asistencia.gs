@@ -1,3 +1,5 @@
+const ESTADOS_ASISTENCIA = Object.freeze(['PRESENTE', 'RETARDO', 'AUSENTE', 'JUSTIFICADA']);
+
 function obtenerSesiones() {
   const libro = obtenerLibro_();
   const hoja = libro.getSheetByName(HOJAS.SESIONES);
@@ -47,7 +49,7 @@ function obtenerParticipantes(idSesion) {
         id: idParticipante,
         nombre: fila[1],
         correo: fila[2],
-        presente: estadoGuardado === 'PRESENTE',
+        estado: estadoGuardado || 'AUSENTE',
       };
     });
 }
@@ -72,22 +74,32 @@ function guardarAsistencia(idSesion, participantes) {
 
   const indiceExistente = obtenerIndiceAsistencias_(hoja);
   const ahora = new Date();
+  const zonaHoraria = Session.getScriptTimeZone();
   const nuevasFilas = [];
   let presentes = 0;
+  let retardos = 0;
   let ausentes = 0;
+  let justificadas = 0;
+
+  participantes.forEach((participante) => {
+    if (!participante.id) {
+      throw new Error('Cada participante debe incluir un ID.');
+    }
+
+    validarEstadoAsistencia_(participante.estado);
+  });
 
   participantes.forEach((participante) => {
     const idParticipante = participante.id;
-
-    if (!idParticipante) {
-      return;
-    }
-
-    const estado = participante.presente === true ? 'PRESENTE' : 'AUSENTE';
+    const estado = participante.estado;
     const fila = indiceExistente.get(crearLlaveAsistencia_(idSesion, idParticipante));
 
     if (estado === 'PRESENTE') {
       presentes++;
+    } else if (estado === 'RETARDO') {
+      retardos++;
+    } else if (estado === 'JUSTIFICADA') {
+      justificadas++;
     } else {
       ausentes++;
     }
@@ -110,8 +122,11 @@ function guardarAsistencia(idSesion, participantes) {
     ok: true,
     idSesion,
     presentes,
+    retardos,
     ausentes,
-    total: presentes + ausentes,
+    justificadas,
+    total: presentes + retardos + ausentes + justificadas,
+    horaGuardado: Utilities.formatDate(ahora, zonaHoraria, 'HH:mm'),
   };
 }
 
@@ -154,6 +169,12 @@ function obtenerIndiceAsistencias_(hoja) {
 
 function crearLlaveAsistencia_(idSesion, idParticipante) {
   return `${idSesion}::${idParticipante}`;
+}
+
+function validarEstadoAsistencia_(estado) {
+  if (!ESTADOS_ASISTENCIA.includes(estado)) {
+    throw new Error(`Estado de asistencia inválido: ${estado}.`);
+  }
 }
 
 function validarSesionExiste_(libro, idSesion) {

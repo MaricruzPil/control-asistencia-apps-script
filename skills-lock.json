@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "skills": {
+    "frontend-design-codex": {
+      "source": "dachent/skills",
+      "sourceType": "github",
+      "skillPath": "frontend-design-codex/SKILL.md",
+      "computedHash": "d93941085646c2bdd63f08423686be24a674a082761d7c38dd620b59df9e25fe"
+    },
+    "ui-ux": {
+      "source": "atuizz/codex-ui-ux-skill",
+      "sourceType": "github",
+      "skillPath": "ui-ux/SKILL.md",
+      "computedHash": "b0036c59ae1246c487eee938f5c30136efa2513406a384f67045cbc12360f4da"
+    }
+  }
+}

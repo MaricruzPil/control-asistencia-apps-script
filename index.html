@@ -3,591 +3,1476 @@
   <head>
     <base target="_top">
     <meta charset="UTF-8">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Source+Sans+3:wght@500;600;700;800&display=swap" rel="stylesheet">
     <title>Control de asistencia</title>
     <style>
       :root {
         color-scheme: light;
-        --bg: #f5f7fb;
+        --bg: #ffffff;
+        --bg-ink: #f6f7f6;
         --surface: #ffffff;
-        --surface-soft: #eef3f8;
-        --text: #172033;
-        --muted: #65738a;
-        --line: #d9e2ec;
-        --primary: #1267d8;
-        --primary-dark: #0c4ea6;
-        --success: #147d50;
-        --success-soft: #e3f5ec;
-        --danger: #b3261e;
-        --danger-soft: #fce8e6;
-        --shadow: 0 10px 28px rgba(23, 32, 51, 0.08);
+        --surface-paper: #fafafa;
+        --surface-soft: #f6f7f6;
+        --surface-list: #ffffff;
+        --line: #e4e7e5;
+        --line-strong: #d5dad7;
+        --text: #2d271f;
+        --muted: #746b60;
+        --ink-soft: #48392c;
+        --teal: #3d6f65;
+        --teal-dark: #294d47;
+        --teal-soft: #dbeae3;
+        --rose: #bf5c4d;
+        --rose-soft: #f6d8cf;
+        --peach: #df9463;
+        --peach-soft: #f9dfc5;
+        --mustard: #c6952f;
+        --mustard-soft: #f2df9f;
+        --plum: #775369;
+        --plum-soft: #eadce3;
+        --focus: rgba(61, 111, 101, 0.38);
+        --shadow: 0 16px 40px rgba(41, 77, 71, 0.12);
       }
 
       * {
         box-sizing: border-box;
       }
 
+      html,
+      body {
+        height: 100%;
+      }
+
       body {
         margin: 0;
-        background: var(--bg);
+        overflow: hidden;
+        background: #ffffff;
         color: var(--text);
-        font-family: Arial, Helvetica, sans-serif;
-        font-size: 16px;
-        line-height: 1.4;
+        font-family: "IBM Plex Sans", "Source Sans 3", "Segoe UI", Arial, sans-serif;
+        font-size: 15px;
+        line-height: 1.35;
       }
 
       button,
-      select {
+      input {
         font: inherit;
       }
 
       button {
-        min-height: 48px;
-        border: 0;
-        border-radius: 8px;
+        min-height: 38px;
+        border: 1px solid var(--line);
+        border-radius: 3px;
+        background: var(--surface);
+        color: var(--text);
         cursor: pointer;
         font-weight: 700;
+        transition: background 140ms ease, border-color 140ms ease, color 140ms ease, transform 140ms ease, box-shadow 140ms ease;
       }
 
       button:disabled,
-      select:disabled {
+      input:disabled {
         cursor: not-allowed;
-        opacity: 0.62;
+        opacity: 0.55;
+      }
+
+      button:focus-visible,
+      input:focus-visible {
+        outline: 3px solid var(--focus);
+        outline-offset: 2px;
       }
 
       .app {
-        width: min(100%, 760px);
-        margin: 0 auto;
-        padding: 20px 14px 28px;
-      }
-
-      .header {
-        margin-bottom: 18px;
-      }
-
-      .header h1 {
-        margin: 0;
-        font-size: 30px;
-        line-height: 1.1;
-      }
-
-      .header p {
-        margin: 8px 0 0;
-        color: var(--muted);
-        font-size: 15px;
-      }
-
-      .panel {
-        background: var(--surface);
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        box-shadow: var(--shadow);
-        padding: 14px;
-      }
-
-      .field {
         display: grid;
+        grid-template-rows: auto auto auto minmax(0, 1fr) auto;
         gap: 8px;
+        height: 100dvh;
+        min-height: 0;
+        padding: 10px 12px;
       }
 
-      .field label {
+      .topbar {
+        position: relative;
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 16px;
+        min-width: 0;
+        border-bottom: 2px solid var(--ink-soft);
+        padding: 7px 10px 10px;
+        background: var(--surface);
+      }
+
+      .topbar::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 62px;
+        height: 5px;
+        background: var(--teal-dark);
+      }
+
+      h1,
+      h2,
+      p {
+        margin: 0;
+      }
+
+      h1 {
+        font-size: clamp(23px, 3vw, 32px);
+        font-family: "Source Sans 3", "IBM Plex Sans", Arial, sans-serif;
+        font-weight: 800;
+        letter-spacing: 0;
+        line-height: 1.05;
+        color: var(--teal-dark);
+      }
+
+      .subtitle,
+      .progress,
+      .session-meta,
+      .last-save {
         color: var(--muted);
+      }
+
+      .subtitle {
+        margin-top: 3px;
+        font-size: 13px;
+        font-weight: 600;
+      }
+
+      .progress {
+        flex: 0 0 auto;
+        border: 1px solid rgba(61, 111, 101, 0.28);
+        background: #ffffff;
+        padding: 5px 9px;
+        color: var(--teal-dark);
+        font-size: 12px;
+        font-weight: 800;
+        white-space: nowrap;
+      }
+
+      .sessions {
+        display: flex;
+        align-items: end;
+        gap: 0;
+        min-width: 0;
+        overflow-x: auto;
+        padding: 3px 0 5px;
+        scrollbar-width: none;
+      }
+
+      .sessions::-webkit-scrollbar {
+        display: none;
+      }
+
+      .session-card {
+        position: relative;
+        flex: 0 0 44px;
+        display: grid;
+        align-content: end;
+        min-height: 72px;
+        margin-left: -1px;
+        padding: 9px 6px 8px;
+        text-align: left;
+        background: var(--surface-paper);
+        border-color: rgba(72, 57, 44, 0.18);
+        border-left-width: 4px;
+        border-radius: 0;
+        overflow: hidden;
+        box-shadow: inset 0 10px 0 rgba(255, 255, 255, 0.24);
+        transition: flex-basis 160ms ease, min-height 160ms ease, border-color 160ms ease, background 160ms ease, transform 160ms ease, box-shadow 160ms ease;
+      }
+
+      .session-card::after {
+        content: "";
+        position: absolute;
+        inset: 0 0 auto 0;
+        height: 6px;
+        background: rgba(72, 57, 44, 0.08);
+      }
+
+      .session-card:first-child {
+        margin-left: 0;
+      }
+
+      .session-card:hover:not(:disabled) {
+        background: #ffffff;
+        border-color: var(--line-strong);
+        transform: translateY(-2px);
+        z-index: 1;
+      }
+
+      .session-card:nth-child(4n + 1) {
+        border-left-color: var(--rose);
+        background: #f7ddd3;
+      }
+
+      .session-card:nth-child(4n + 2) {
+        border-left-color: var(--peach);
+        background: #f9e4ca;
+      }
+
+      .session-card:nth-child(4n + 3) {
+        border-left-color: var(--mustard);
+        background: #f4e7b4;
+      }
+
+      .session-card:nth-child(4n) {
+        border-left-color: var(--teal);
+        background: #dce9df;
+      }
+
+      .session-card:nth-child(3n + 2) {
+        min-height: 78px;
+      }
+
+      .session-card:nth-child(5n) {
+        min-height: 66px;
+      }
+
+      .session-card.active {
+        flex-basis: 226px;
+        min-height: 88px;
+        background: var(--teal);
+        border-color: var(--teal-dark);
+        border-left-color: var(--mustard);
+        box-shadow: var(--shadow);
+        color: #ffffff;
+        z-index: 2;
+      }
+
+      .session-card.active::after {
+        height: 8px;
+        background: var(--mustard);
+      }
+
+      .session-number {
+        color: inherit;
+        font-family: "Source Sans 3", "IBM Plex Sans", Arial, sans-serif;
+        font-size: 23px;
+        font-weight: 800;
+        line-height: 1;
+      }
+
+      .session-topic,
+      .session-date,
+      .session-state {
+        display: none;
+      }
+
+      .session-card.active .session-topic,
+      .session-card.active .session-date,
+      .session-card.active .session-state {
+        display: block;
+      }
+
+      .session-topic {
+        margin-top: 7px;
+        overflow: hidden;
         font-size: 14px;
         font-weight: 700;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
 
-      .field select {
-        width: 100%;
-        min-height: 50px;
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        background: var(--surface);
-        color: var(--text);
-        padding: 0 12px;
+      .session-date,
+      .session-state {
+        margin-top: 3px;
+        color: rgba(255, 255, 255, 0.78);
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
       }
 
-      .status-row {
+      .session-info {
+        display: grid;
+        gap: 10px;
+        border-top: 2px solid var(--line-strong);
+        border-bottom: 1px solid var(--line);
+        background: var(--surface-paper);
+        padding: 10px 12px;
+      }
+
+      .session-line {
         display: flex;
         align-items: center;
         justify-content: space-between;
         gap: 12px;
-        margin-top: 14px;
+      }
+
+      .session-title {
+        font-family: "Source Sans 3", "IBM Plex Sans", Arial, sans-serif;
+        font-size: 18px;
+        font-weight: 800;
+        color: var(--ink-soft);
+      }
+
+      .badge-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
+      }
+
+      .badge,
+      .dirty {
+        display: inline-flex;
+        align-items: center;
+        min-height: 25px;
+        padding: 0 9px;
+        font-size: 12px;
+        font-weight: 800;
       }
 
       .badge {
-        display: inline-flex;
-        align-items: center;
-        min-height: 34px;
+        border: 1px solid rgba(72, 57, 44, 0.18);
         border-radius: 999px;
-        background: var(--surface-soft);
+        background: #ffffff;
+        color: var(--ink-soft);
+        text-transform: uppercase;
+      }
+
+      .badge.registrada {
+        border-color: rgba(61, 111, 101, 0.32);
+        background: var(--teal-soft);
+        color: var(--teal-dark);
+      }
+
+      .dirty {
+        display: none;
+        border-radius: 0;
+        border-left: 4px solid var(--mustard);
+        background: var(--mustard-soft);
+        color: #6c5a15;
+      }
+
+      .dirty.show {
+        display: inline-flex;
+      }
+
+      .summary {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 7px 22px;
+        align-items: center;
+      }
+
+      .metric {
+        position: relative;
+        min-width: 0;
+        border: 0;
+        background: transparent;
+        padding: 0 0 0 14px;
+      }
+
+      .metric strong {
+        font-family: "Source Sans 3", "IBM Plex Sans", Arial, sans-serif;
+        font-size: 24px;
+        font-weight: 800;
+        line-height: 1;
+      }
+
+      .metric span {
+        margin-left: 4px;
         color: var(--muted);
-        padding: 0 12px;
+        font-size: 12px;
+        font-weight: 600;
+      }
+
+      .metric::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0.18em;
+        width: 7px;
+        height: 1.55em;
+        background: var(--line-strong);
+        clip-path: polygon(0 0, 100% 0, 100% 75%, 50% 100%, 0 75%);
+      }
+
+      .metric.presentes::before {
+        background: var(--teal);
+      }
+
+      .metric.retardos::before {
+        background: var(--mustard);
+      }
+
+      .metric.ausentes::before {
+        background: var(--rose);
+      }
+
+      .metric.justificadas::before {
+        background: var(--plum);
+      }
+
+      .toolbar {
+        display: grid;
+        grid-template-columns: minmax(220px, 1fr) auto auto;
+        gap: 8px;
+        align-items: end;
+        border-bottom: 1px solid var(--line-strong);
+        background: var(--surface);
+        padding: 10px 12px;
+      }
+
+      .search-wrap {
+        display: grid;
+        gap: 4px;
+      }
+
+      .search-label {
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 800;
+      }
+
+      .search {
+        width: 100%;
+        min-height: 39px;
+        border: 0;
+        border-bottom: 2px solid var(--teal);
+        border-radius: 3px;
+        background: #ffffff;
+        color: var(--text);
+        padding: 0 11px;
+        font-weight: 600;
+      }
+
+      .bulk-btn {
+        min-width: 128px;
+        border-color: rgba(72, 57, 44, 0.18);
+        color: var(--ink-soft);
+        background: #ffffff;
+      }
+
+      .bulk-btn:hover:not(:disabled) {
+        background: var(--surface-paper);
+        border-color: var(--line-strong);
+      }
+
+      .workspace {
+        display: grid;
+        grid-template-rows: auto minmax(0, 1fr);
+        min-height: 0;
+        border: 1px solid var(--line-strong);
+        border-top: 0;
+        background: var(--surface-list);
+      }
+
+      .message,
+      .loading {
+        display: none;
+        margin: 0;
+        border: 1px solid rgba(72, 57, 44, 0.16);
+        padding: 7px 10px;
         font-size: 13px;
         font-weight: 800;
       }
 
-      .badge.registered {
-        background: var(--success-soft);
-        color: var(--success);
-      }
-
-      .counter {
-        color: var(--text);
-        font-size: 15px;
-        font-weight: 800;
-      }
-
-      .actions {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 10px;
-        margin: 14px 0;
-      }
-
-      .secondary {
-        background: var(--surface);
-        border: 1px solid var(--line);
-        color: var(--text);
-      }
-
-      .primary {
-        width: 100%;
-        background: var(--primary);
-        color: #ffffff;
-        margin-top: 12px;
-      }
-
-      .primary:active {
-        background: var(--primary-dark);
-      }
-
-      .message {
-        display: none;
-        margin: 14px 0;
-        border-radius: 8px;
-        padding: 12px;
-        font-weight: 700;
-      }
-
-      .message.show {
+      .message.show,
+      .loading.show {
         display: block;
       }
 
-      .message.info {
-        background: var(--surface-soft);
-        color: var(--muted);
-      }
-
       .message.success {
-        background: var(--success-soft);
-        color: var(--success);
+        border-color: rgba(61, 111, 101, 0.3);
+        background: var(--teal-soft);
+        color: var(--teal-dark);
       }
 
       .message.error {
-        background: var(--danger-soft);
-        color: var(--danger);
+        border-color: var(--rose);
+        background: var(--rose-soft);
+        color: #813d39;
       }
 
       .loading {
-        display: none;
-        align-items: center;
-        gap: 10px;
-        margin: 14px 0;
-        color: var(--muted);
-        font-weight: 700;
-      }
-
-      .loading.show {
-        display: flex;
-      }
-
-      .spinner {
-        width: 18px;
-        height: 18px;
-        border: 3px solid var(--line);
-        border-top-color: var(--primary);
-        border-radius: 50%;
-        animation: girar 0.8s linear infinite;
-      }
-
-      @keyframes girar {
-        to {
-          transform: rotate(360deg);
-        }
+        background: var(--surface-paper);
+        color: var(--ink-soft);
       }
 
       .list {
         display: grid;
-        gap: 10px;
-        margin-top: 14px;
+        align-content: start;
+        gap: 0;
+        min-height: 0;
+        overflow-y: auto;
+        padding: 0 12px 12px;
+        background: var(--surface-list);
       }
 
       .participant {
+        position: relative;
         display: grid;
+        grid-template-columns: 220px minmax(0, 1fr);
         gap: 12px;
-        background: var(--surface);
-        border: 1px solid var(--line);
-        border-left: 6px solid var(--danger);
-        border-radius: 8px;
-        padding: 12px;
+        align-items: center;
+        border: 0;
+        border-bottom: 1px solid var(--line);
+        border-left: 8px solid var(--line-strong);
+        background: #ffffff;
+        padding: 10px 10px 10px 12px;
+        transition: background 120ms ease, border-color 120ms ease, transform 120ms ease;
       }
 
-      .participant.present {
-        border-left-color: var(--success);
+      .participant:hover {
+        background: #f6f7f6;
       }
 
-      .participant-main {
+      .participant::after {
+        content: attr(data-state);
+        position: absolute;
+        right: 12px;
+        top: 4px;
+        color: rgba(72, 57, 44, 0.18);
+        font-family: "Source Sans 3", "IBM Plex Sans", Arial, sans-serif;
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        pointer-events: none;
+      }
+
+      .participant[data-state="PRESENTE"] {
+        border-left-color: var(--teal);
+      }
+
+      .participant[data-state="RETARDO"] {
+        border-left-color: var(--mustard);
+      }
+
+      .participant[data-state="AUSENTE"] {
+        border-left-color: var(--rose);
+      }
+
+      .participant[data-state="JUSTIFICADA"] {
+        border-left-color: var(--plum);
+      }
+
+      .person {
+        display: grid;
+        grid-template-columns: 50px minmax(0, 1fr);
+        column-gap: 10px;
+        align-items: center;
         min-width: 0;
       }
 
-      .participant-id {
-        color: var(--muted);
-        font-size: 13px;
+      .person-id {
+        justify-self: start;
+        border: 1px solid rgba(72, 57, 44, 0.18);
+        background: var(--surface-paper);
+        padding: 2px 6px;
+        color: var(--ink-soft);
+        font-family: "Source Sans 3", "IBM Plex Sans", Arial, sans-serif;
+        font-size: 12px;
         font-weight: 800;
       }
 
-      .participant-name {
-        margin-top: 2px;
-        font-size: 17px;
-        font-weight: 800;
+      .person-name {
+        overflow: hidden;
+        color: var(--text);
+        font-size: 15px;
+        font-weight: 700;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
 
-      .participant-email {
-        margin-top: 2px;
-        color: var(--muted);
-        font-size: 14px;
+      .person-email {
+        grid-column: 2;
         overflow-wrap: anywhere;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 500;
       }
 
-      .toggle {
+      .state-grid {
         display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 8px;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 0;
+        border: 2px solid rgba(72, 57, 44, 0.22);
+        background: rgba(72, 57, 44, 0.16);
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.72);
       }
 
-      .toggle button {
-        min-height: 46px;
-        border: 1px solid var(--line);
-        background: var(--surface-soft);
+      .state-btn {
+        min-height: 36px;
+        padding: 0 8px;
+        border: 0;
+        border-radius: 0;
+        background: #ffffff;
+        color: rgba(72, 57, 44, 0.68);
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+
+      .state-btn + .state-btn {
+        border-left: 1px solid var(--line);
+      }
+
+      .state-btn:hover:not(:disabled) {
+        background: var(--surface-paper);
+        color: var(--ink-soft);
+      }
+
+      .state-btn.active {
+        position: relative;
+        color: #ffffff;
+        box-shadow: inset 0 -4px 0 rgba(45, 39, 31, 0.22);
+        text-shadow: 0 1px 0 rgba(45, 39, 31, 0.18);
+      }
+
+      .state-btn.active::before {
+        content: "●";
+        position: absolute;
+        left: 6px;
+        top: 4px;
+        height: auto;
+        background: transparent;
+        color: currentColor;
+        font-size: 7px;
+        line-height: 1;
+        opacity: 0.95;
+      }
+
+      .state-btn.active[data-state="PRESENTE"] {
+        background: var(--teal);
+        color: #ffffff;
+      }
+
+      .state-btn.active[data-state="RETARDO"] {
+        background: var(--mustard);
+        color: #2d271f;
+        text-shadow: none;
+      }
+
+      .state-btn.active[data-state="AUSENTE"] {
+        background: var(--rose);
+        color: #ffffff;
+      }
+
+      .state-btn.active[data-state="JUSTIFICADA"] {
+        background: var(--plum);
+        color: #ffffff;
+      }
+
+      .empty {
+        border: 2px dashed var(--line-strong);
+        background: #ffffff;
+        padding: 18px;
+        color: var(--muted);
+        text-align: center;
+        font-weight: 700;
+      }
+
+      .savebar {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 12px;
+        align-items: center;
+        border-top: 2px solid var(--ink-soft);
+        border-right: 0;
+        border-bottom: 0;
+        border-left: 0;
+        background: var(--surface);
+        padding: 9px 10px 0;
+      }
+
+      .last-save {
+        min-height: 18px;
+        font-size: 13px;
+      }
+
+      .save-status {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
+        min-width: 0;
+      }
+
+      .save {
+        min-width: 190px;
+        border-color: var(--teal-dark);
+        background: var(--teal);
+        color: #ffffff;
+        box-shadow: 0 8px 18px rgba(61, 111, 101, 0.22);
+      }
+
+      .save:hover:not(:disabled) {
+        transform: translateY(-1px);
+        box-shadow: 0 10px 24px rgba(61, 111, 101, 0.28);
+      }
+
+      .modal-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 10;
+        display: none;
+        place-items: center;
+        background: rgba(32, 35, 36, 0.34);
+        padding: 18px;
+      }
+
+      .modal-backdrop.show {
+        display: grid;
+      }
+
+      .modal {
+        width: min(100%, 430px);
+        border: 1px solid var(--line-strong);
+        background: var(--surface);
+        padding: 18px;
+        box-shadow: 0 18px 50px rgba(32, 35, 36, 0.14);
+      }
+
+      .modal h2 {
+        color: var(--teal-dark);
+        font-family: "Source Sans 3", "IBM Plex Sans", Arial, sans-serif;
+        font-size: 20px;
+        font-weight: 800;
+      }
+
+      .modal p {
+        margin-top: 8px;
         color: var(--muted);
       }
 
-      .toggle button.active-present {
-        border-color: var(--success);
-        background: var(--success-soft);
-        color: var(--success);
+      .modal-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        margin-top: 18px;
       }
 
-      .toggle button.active-absent {
-        border-color: var(--danger);
-        background: var(--danger-soft);
-        color: var(--danger);
+      .modal-primary {
+        border-color: var(--teal-dark);
+        background: var(--teal);
+        color: #ffffff;
       }
 
-      @media (min-width: 680px) {
-        .app {
-          padding-top: 30px;
+      @media (max-width: 980px) {
+        .participant {
+          grid-template-columns: 1fr;
         }
 
-        .participant {
-          grid-template-columns: minmax(0, 1fr) 260px;
-          align-items: center;
+        .state-grid {
+          grid-template-columns: repeat(4, minmax(110px, 1fr));
+        }
+      }
+
+      @media (max-width: 760px) {
+        .app {
+          padding: 9px;
+          gap: 7px;
+        }
+
+        .topbar {
+          align-items: start;
+          flex-direction: column;
+          gap: 6px;
+        }
+
+        .session-card {
+          flex-basis: 43px;
+          min-height: 66px;
+        }
+
+        .session-card.active {
+          flex-basis: 192px;
+        }
+
+        .session-line {
+          align-items: start;
+          flex-direction: column;
+          gap: 7px;
+        }
+
+        .summary {
+          grid-template-columns: 1fr 1fr;
+          display: grid;
+          gap: 6px 12px;
+        }
+
+        .toolbar {
+          grid-template-columns: 1fr 1fr;
+        }
+
+        .search-wrap {
+          grid-column: 1 / -1;
+        }
+
+        .bulk-btn {
+          min-width: 0;
+        }
+
+        .state-grid {
+          grid-template-columns: 1fr 1fr;
+        }
+
+        .state-btn:nth-child(3) {
+          border-left: 0;
+          border-top: 1px solid var(--line);
+        }
+
+        .state-btn:nth-child(4) {
+          border-top: 1px solid var(--line);
+        }
+
+        .savebar {
+          grid-template-columns: 1fr;
+          gap: 7px;
+        }
+
+        .save {
+          width: 100%;
+          min-width: 0;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          scroll-behavior: auto !important;
+          transition-duration: 0.01ms !important;
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+        }
+      }
+
+      @media (max-height: 620px) {
+        body {
+          overflow: auto;
+        }
+
+        .app {
+          min-height: 100dvh;
+          height: auto;
+        }
+
+        .list {
+          max-height: 54dvh;
         }
       }
     </style>
   </head>
   <body>
     <main class="app">
-      <header class="header">
-        <h1>Control de asistencia</h1>
-        <p>30 participantes &middot; 10 sesiones</p>
+      <header class="topbar">
+        <div>
+          <h1>Control de asistencia</h1>
+          <p class="subtitle">30 participantes · 10 sesiones</p>
+        </div>
+        <p id="progresoSesiones" class="progress">0 de 10 sesiones registradas</p>
       </header>
 
-      <section class="panel" aria-label="Selección de sesión">
-        <div class="field">
-          <label for="sesionSelect">Sesión</label>
-          <select id="sesionSelect" disabled>
-            <option value="">Cargando sesiones...</option>
-          </select>
+      <nav id="sesiones" class="sessions" aria-label="Sesiones"></nav>
+
+      <section class="session-info" aria-label="Resumen de sesión">
+        <div class="session-line">
+          <div>
+            <h2 id="tituloSesion" class="session-title">Selecciona una sesión</h2>
+            <p id="metaSesion" class="session-meta">Elige una sesión para cargar participantes.</p>
+          </div>
+          <div class="badge-row">
+            <span id="estadoSesion" class="badge">Sin sesión</span>
+            <span id="cambios" class="dirty">● Cambios sin guardar</span>
+          </div>
         </div>
 
-        <div class="status-row">
-          <span id="estadoSesion" class="badge">Sin sesión</span>
-          <span id="contador" class="counter">Presentes: 0 / 30</span>
+        <section class="summary" aria-label="Resumen de asistencia">
+          <div class="metric presentes"><strong id="totalPresentes">0</strong><span>Presentes</span></div>
+          <div class="metric retardos"><strong id="totalRetardos">0</strong><span>Retardos</span></div>
+          <div class="metric ausentes"><strong id="totalAusentes">0</strong><span>Faltas</span></div>
+          <div class="metric justificadas"><strong id="totalJustificadas">0</strong><span>Justificadas</span></div>
+        </section>
+      </section>
+
+      <section class="workspace" aria-label="Participantes">
+        <div class="toolbar">
+          <div class="search-wrap">
+            <label class="search-label" for="buscar">Buscar por ID, nombre o correo</label>
+            <input id="buscar" class="search" type="search" placeholder="Ej. P01 o participante01" disabled>
+          </div>
+          <button id="todosPresentesBtn" class="bulk-btn" type="button" disabled>Todos presentes</button>
+          <button id="todosAusentesBtn" class="bulk-btn" type="button" disabled>Todos ausentes</button>
         </div>
+        <div id="listaParticipantes" class="list"></div>
       </section>
 
-      <div id="cargando" class="loading" role="status" aria-live="polite">
-        <span class="spinner" aria-hidden="true"></span>
-        <span id="textoCarga">Cargando...</span>
-      </div>
-
-      <div id="mensaje" class="message" role="alert"></div>
-
-      <section class="actions" aria-label="Acciones rápidas">
-        <button id="marcarTodosBtn" class="secondary" type="button" disabled>Marcar todos</button>
-        <button id="desmarcarTodosBtn" class="secondary" type="button" disabled>Desmarcar todos</button>
-      </section>
-
-      <section id="listaParticipantes" class="list" aria-label="Participantes"></section>
-
-      <button id="guardarBtn" class="primary" type="button" disabled>Guardar asistencia</button>
+      <footer class="savebar">
+        <div class="save-status">
+          <p id="ultimoGuardado" class="last-save"></p>
+          <div id="cargando" class="loading" role="status" aria-live="polite">Cargando...</div>
+          <div id="mensaje" class="message" role="alert"></div>
+        </div>
+        <button id="guardarBtn" class="save" type="button" disabled>Guardar asistencia</button>
+      </footer>
     </main>
 
+    <div id="modalConfirmacion" class="modal-backdrop" role="presentation" aria-hidden="true">
+      <section
+        class="modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modalTitulo"
+        aria-describedby="modalMensaje"
+        tabindex="-1"
+      >
+        <h2 id="modalTitulo"></h2>
+        <p id="modalMensaje"></p>
+        <div class="modal-actions">
+          <button id="modalCancelarBtn" type="button"></button>
+          <button id="modalConfirmarBtn" class="modal-primary" type="button"></button>
+        </div>
+      </section>
+    </div>
+
     <script>
-      const estado = {
+      const ESTADOS = ['PRESENTE', 'RETARDO', 'AUSENTE', 'JUSTIFICADA'];
+      const OPCIONES = [
+        { estado: 'PRESENTE', texto: '✓ Presente' },
+        { estado: 'RETARDO', texto: '◷ Retardo' },
+        { estado: 'AUSENTE', texto: '× Falta' },
+        { estado: 'JUSTIFICADA', texto: '◇ Justificada' },
+      ];
+
+      const estadoApp = {
         sesiones: [],
         sesionActual: null,
         participantes: [],
+        baseParticipantes: '',
+        filtro: '',
         cargando: false,
+        ultimoGuardado: '',
       };
 
-      const elementos = {
-        sesionSelect: document.getElementById('sesionSelect'),
+      const modalEstado = {
+        abierto: false,
+        onConfirmar: null,
+        focoPrevio: null,
+      };
+
+      const el = {
+        sesiones: document.getElementById('sesiones'),
+        progresoSesiones: document.getElementById('progresoSesiones'),
+        tituloSesion: document.getElementById('tituloSesion'),
+        metaSesion: document.getElementById('metaSesion'),
         estadoSesion: document.getElementById('estadoSesion'),
-        contador: document.getElementById('contador'),
+        cambios: document.getElementById('cambios'),
+        totalPresentes: document.getElementById('totalPresentes'),
+        totalRetardos: document.getElementById('totalRetardos'),
+        totalAusentes: document.getElementById('totalAusentes'),
+        totalJustificadas: document.getElementById('totalJustificadas'),
+        todosPresentesBtn: document.getElementById('todosPresentesBtn'),
+        todosAusentesBtn: document.getElementById('todosAusentesBtn'),
+        guardarBtn: document.getElementById('guardarBtn'),
+        ultimoGuardado: document.getElementById('ultimoGuardado'),
+        buscar: document.getElementById('buscar'),
         cargando: document.getElementById('cargando'),
-        textoCarga: document.getElementById('textoCarga'),
         mensaje: document.getElementById('mensaje'),
         listaParticipantes: document.getElementById('listaParticipantes'),
-        marcarTodosBtn: document.getElementById('marcarTodosBtn'),
-        desmarcarTodosBtn: document.getElementById('desmarcarTodosBtn'),
-        guardarBtn: document.getElementById('guardarBtn'),
+        modal: document.getElementById('modalConfirmacion'),
+        modalCaja: document.querySelector('#modalConfirmacion .modal'),
+        modalTitulo: document.getElementById('modalTitulo'),
+        modalMensaje: document.getElementById('modalMensaje'),
+        modalCancelarBtn: document.getElementById('modalCancelarBtn'),
+        modalConfirmarBtn: document.getElementById('modalConfirmarBtn'),
       };
 
       document.addEventListener('DOMContentLoaded', iniciar);
-      elementos.sesionSelect.addEventListener('change', manejarCambioSesion);
-      elementos.marcarTodosBtn.addEventListener('click', () => cambiarTodos(true));
-      elementos.desmarcarTodosBtn.addEventListener('click', () => cambiarTodos(false));
-      elementos.guardarBtn.addEventListener('click', guardarAsistenciaActual);
+      document.addEventListener('keydown', manejarTeclaGlobal);
+      el.buscar.addEventListener('input', () => {
+        estadoApp.filtro = el.buscar.value;
+        renderizarParticipantes();
+      });
+      el.todosPresentesBtn.addEventListener('click', () => cambiarTodos('PRESENTE'));
+      el.todosAusentesBtn.addEventListener('click', solicitarTodosAusentes);
+      el.guardarBtn.addEventListener('click', guardarAsistenciaActual);
+      el.modalCancelarBtn.addEventListener('click', cerrarModal);
+      el.modalConfirmarBtn.addEventListener('click', () => {
+        const accion = modalEstado.onConfirmar;
+        cerrarModal();
+
+        if (accion) {
+          accion();
+        }
+      });
 
       function iniciar() {
         mostrarCarga('Cargando sesiones...');
-        limpiarMensaje();
 
         google.script.run
           .withSuccessHandler((sesiones) => {
-            estado.sesiones = Array.isArray(sesiones) ? sesiones : [];
-            renderizarSesiones();
+            estadoApp.sesiones = Array.isArray(sesiones) ? sesiones : [];
             ocultarCarga();
+            renderizarSesiones();
+            actualizarProgreso();
           })
           .withFailureHandler((error) => {
             ocultarCarga();
             mostrarError(error);
-            elementos.sesionSelect.innerHTML = '';
-            elementos.sesionSelect.appendChild(new Option('No se pudieron cargar las sesiones', ''));
           })
           .obtenerSesiones();
       }
 
       function renderizarSesiones() {
-        elementos.sesionSelect.innerHTML = '';
-        elementos.sesionSelect.appendChild(new Option('Selecciona una sesión', ''));
+        el.sesiones.textContent = '';
 
-        estado.sesiones.forEach((sesion) => {
-          const texto = `Sesión ${sesion.numero} - ${sesion.fecha} - ${sesion.tema}`;
-          elementos.sesionSelect.appendChild(new Option(texto, sesion.id));
+        estadoApp.sesiones.forEach((sesion) => {
+          const boton = document.createElement('button');
+          boton.type = 'button';
+          boton.className = sesion.id === (estadoApp.sesionActual && estadoApp.sesionActual.id)
+            ? 'session-card active'
+            : 'session-card';
+          boton.disabled = estadoApp.cargando;
+          boton.setAttribute('aria-pressed', String(sesion.id === (estadoApp.sesionActual && estadoApp.sesionActual.id)));
+          boton.setAttribute('aria-label', `Sesión ${String(sesion.numero).padStart(2, '0')}: ${sesion.tema}, ${sesion.estado}`);
+          boton.addEventListener('click', () => seleccionarSesion(sesion.id));
+
+          const numero = document.createElement('div');
+          numero.className = 'session-number';
+          numero.textContent = String(sesion.numero).padStart(2, '0');
+
+          const tema = document.createElement('div');
+          tema.className = 'session-topic';
+          tema.textContent = sesion.tema;
+
+          const fecha = document.createElement('div');
+          fecha.className = 'session-date';
+          fecha.textContent = formatearFechaCorta(sesion.fecha);
+
+          const estado = document.createElement('div');
+          estado.className = 'session-state';
+          estado.textContent = `● ${sesion.estado}`;
+
+          boton.appendChild(numero);
+          boton.appendChild(tema);
+          boton.appendChild(fecha);
+          boton.appendChild(estado);
+          el.sesiones.appendChild(boton);
         });
-
-        elementos.sesionSelect.disabled = estado.sesiones.length === 0;
-
-        if (estado.sesiones.length === 0) {
-          mostrarMensaje('No hay sesiones disponibles.', 'info');
-        }
       }
 
-      function manejarCambioSesion() {
-        const idSesion = elementos.sesionSelect.value;
-        estado.sesionActual = estado.sesiones.find((sesion) => sesion.id === idSesion) || null;
-        estado.participantes = [];
-        renderizarParticipantes();
-        actualizarEstadoSesion();
-        actualizarContador();
-        limpiarMensaje();
-
-        if (!idSesion) {
-          actualizarControles();
+      function seleccionarSesion(idSesion) {
+        if (estadoApp.cargando) {
           return;
         }
 
-        mostrarCarga('Cargando participantes...');
+        if (tieneCambiosSinGuardar()) {
+          abrirModal({
+            titulo: 'Cambios sin guardar',
+            mensaje: 'Hay cambios en esta sesión que todavía no se han guardado.',
+            cancelar: 'Seguir editando',
+            confirmar: 'Descartar cambios',
+            onConfirmar: () => abrirSesion(idSesion),
+          });
+          return;
+        }
+
+        abrirSesion(idSesion);
+      }
+
+      function abrirSesion(idSesion) {
+        const sesion = estadoApp.sesiones.find((item) => item.id === idSesion);
+
+        if (!sesion) {
+          return;
+        }
+
+        estadoApp.sesionActual = sesion;
+        estadoApp.participantes = [];
+        estadoApp.baseParticipantes = '';
+        estadoApp.filtro = '';
+        estadoApp.ultimoGuardado = '';
+        el.buscar.value = '';
+        limpiarMensaje();
+        actualizarPanelSesion();
+        renderizarSesiones();
+        renderizarParticipantes();
+        actualizarResumen();
         actualizarControles();
+        cargarParticipantes(idSesion);
+      }
+
+      function cargarParticipantes(idSesion) {
+        mostrarCarga('Cargando participantes...');
 
         google.script.run
           .withSuccessHandler((participantes) => {
-            estado.participantes = Array.isArray(participantes) ? participantes : [];
+            if (!estadoApp.sesionActual || estadoApp.sesionActual.id !== idSesion) {
+              return;
+            }
+
+            estadoApp.participantes = normalizarParticipantes(participantes);
+            estadoApp.baseParticipantes = serializarEstados(estadoApp.participantes);
             renderizarParticipantes();
-            actualizarContador();
+            actualizarResumen();
+            actualizarCambios();
             ocultarCarga();
-            actualizarControles();
           })
           .withFailureHandler((error) => {
-            estado.participantes = [];
+            if (!estadoApp.sesionActual || estadoApp.sesionActual.id !== idSesion) {
+              return;
+            }
+
+            estadoApp.participantes = [];
+            estadoApp.baseParticipantes = '';
             renderizarParticipantes();
-            actualizarContador();
+            actualizarResumen();
+            actualizarCambios();
             ocultarCarga();
-            actualizarControles();
             mostrarError(error);
           })
           .obtenerParticipantes(idSesion);
       }
 
-      function renderizarParticipantes() {
-        elementos.listaParticipantes.innerHTML = '';
-
-        estado.participantes.forEach((participante) => {
-          const item = document.createElement('article');
-          item.className = participante.presente ? 'participant present' : 'participant';
-
-          const info = document.createElement('div');
-          info.className = 'participant-main';
-
-          const id = document.createElement('div');
-          id.className = 'participant-id';
-          id.textContent = participante.id;
-
-          const nombre = document.createElement('div');
-          nombre.className = 'participant-name';
-          nombre.textContent = participante.nombre;
-
-          const correo = document.createElement('div');
-          correo.className = 'participant-email';
-          correo.textContent = participante.correo;
-
-          const toggle = document.createElement('div');
-          toggle.className = 'toggle';
-
-          const presenteBtn = document.createElement('button');
-          presenteBtn.type = 'button';
-          presenteBtn.textContent = 'Presente';
-          presenteBtn.className = participante.presente ? 'active-present' : '';
-          presenteBtn.addEventListener('click', () => actualizarPresente(participante.id, true));
-
-          const ausenteBtn = document.createElement('button');
-          ausenteBtn.type = 'button';
-          ausenteBtn.textContent = 'Ausente';
-          ausenteBtn.className = participante.presente ? '' : 'active-absent';
-          ausenteBtn.addEventListener('click', () => actualizarPresente(participante.id, false));
-
-          info.appendChild(id);
-          info.appendChild(nombre);
-          info.appendChild(correo);
-          toggle.appendChild(presenteBtn);
-          toggle.appendChild(ausenteBtn);
-          item.appendChild(info);
-          item.appendChild(toggle);
-          elementos.listaParticipantes.appendChild(item);
-        });
+      function normalizarParticipantes(participantes) {
+        return (Array.isArray(participantes) ? participantes : []).map((participante) => ({
+          id: participante.id,
+          nombre: participante.nombre,
+          correo: participante.correo,
+          estado: ESTADOS.includes(participante.estado) ? participante.estado : 'AUSENTE',
+        }));
       }
 
-      function actualizarPresente(idParticipante, presente) {
-        const participante = estado.participantes.find((item) => item.id === idParticipante);
+      function renderizarParticipantes() {
+        el.listaParticipantes.textContent = '';
 
-        if (!participante || participante.presente === presente) {
+        if (!estadoApp.sesionActual) {
+          const vacio = document.createElement('div');
+          vacio.className = 'empty';
+          vacio.textContent = 'Selecciona una sesión para ver participantes.';
+          el.listaParticipantes.appendChild(vacio);
           return;
         }
 
-        participante.presente = presente;
+        const participantes = participantesFiltrados();
+
+        if (participantes.length === 0) {
+          const vacio = document.createElement('div');
+          vacio.className = 'empty';
+          vacio.textContent = 'No hay participantes que coincidan con la búsqueda.';
+          el.listaParticipantes.appendChild(vacio);
+          return;
+        }
+
+        participantes.forEach((participante) => {
+          const item = document.createElement('article');
+          item.className = 'participant';
+          item.dataset.state = participante.estado;
+
+          const persona = document.createElement('div');
+          persona.className = 'person';
+
+          const id = document.createElement('div');
+          id.className = 'person-id';
+          id.textContent = participante.id;
+
+          const nombre = document.createElement('div');
+          nombre.className = 'person-name';
+          nombre.textContent = participante.nombre;
+
+          const correo = document.createElement('div');
+          correo.className = 'person-email';
+          correo.textContent = participante.correo;
+
+          const controles = document.createElement('div');
+          controles.className = 'state-grid';
+          controles.setAttribute('aria-label', `Estado de ${participante.nombre}`);
+
+          OPCIONES.forEach((opcion) => {
+            const boton = document.createElement('button');
+            boton.type = 'button';
+            boton.className = opcion.estado === participante.estado ? 'state-btn active' : 'state-btn';
+            boton.dataset.state = opcion.estado;
+            boton.setAttribute('aria-pressed', String(opcion.estado === participante.estado));
+            boton.textContent = opcion.texto;
+            boton.addEventListener('click', () => actualizarEstadoParticipante(participante.id, opcion.estado));
+            controles.appendChild(boton);
+          });
+
+          persona.appendChild(id);
+          persona.appendChild(nombre);
+          persona.appendChild(correo);
+          item.appendChild(persona);
+          item.appendChild(controles);
+          el.listaParticipantes.appendChild(item);
+        });
+      }
+
+      function participantesFiltrados() {
+        const texto = estadoApp.filtro.trim().toLowerCase();
+
+        if (!texto) {
+          return estadoApp.participantes;
+        }
+
+        return estadoApp.participantes.filter((participante) => (
+          participante.id.toLowerCase().includes(texto)
+          || participante.nombre.toLowerCase().includes(texto)
+          || participante.correo.toLowerCase().includes(texto)
+        ));
+      }
+
+      function actualizarEstadoParticipante(idParticipante, nuevoEstado) {
+        const participante = estadoApp.participantes.find((item) => item.id === idParticipante);
+
+        if (!participante || participante.estado === nuevoEstado) {
+          return;
+        }
+
+        participante.estado = nuevoEstado;
         renderizarParticipantes();
-        actualizarContador();
+        actualizarResumen();
+        actualizarCambios();
         limpiarMensaje();
       }
 
-      function cambiarTodos(presente) {
-        estado.participantes = estado.participantes.map((participante) => ({
+      function cambiarTodos(nuevoEstado) {
+        estadoApp.participantes = estadoApp.participantes.map((participante) => ({
           ...participante,
-          presente,
+          estado: nuevoEstado,
         }));
         renderizarParticipantes();
-        actualizarContador();
+        actualizarResumen();
+        actualizarCambios();
         limpiarMensaje();
+      }
+
+      function solicitarTodosAusentes() {
+        abrirModal({
+          titulo: 'Marcar todos como ausentes',
+          mensaje: 'Se cambiará el estado de todos los participantes de esta sesión.',
+          cancelar: 'Cancelar',
+          confirmar: 'Marcar todos',
+          onConfirmar: () => cambiarTodos('AUSENTE'),
+        });
       }
 
       function guardarAsistenciaActual() {
-        if (!estado.sesionActual || estado.participantes.length === 0) {
-          mostrarMensaje('Selecciona una sesión con participantes antes de guardar.', 'error');
+        if (!estadoApp.sesionActual) {
+          mostrarMensaje('Selecciona una sesión antes de guardar.', 'error');
+          return;
+        }
+
+        if (estadoApp.participantes.length === 0) {
+          mostrarMensaje('No hay participantes para guardar.', 'error');
           return;
         }
 
         mostrarCarga('Guardando asistencia...');
         limpiarMensaje();
-        actualizarControles(true);
 
-        const participantes = estado.participantes.map((participante) => ({
+        const participantes = estadoApp.participantes.map((participante) => ({
           id: participante.id,
-          presente: participante.presente === true,
+          estado: participante.estado,
         }));
 
         google.script.run
           .withSuccessHandler((resultado) => {
-            ocultarCarga();
-            estado.sesionActual.estado = 'REGISTRADA';
-            const sesion = estado.sesiones.find((item) => item.id === estado.sesionActual.id);
+            estadoApp.sesionActual.estado = 'REGISTRADA';
+            const sesion = estadoApp.sesiones.find((item) => item.id === estadoApp.sesionActual.id);
 
             if (sesion) {
               sesion.estado = 'REGISTRADA';
             }
 
-            actualizarEstadoSesion();
-            actualizarControles();
-            mostrarMensaje(`Guardado: ${resultado.presentes} presentes y ${resultado.ausentes} ausentes.`, 'success');
+            estadoApp.baseParticipantes = serializarEstados(estadoApp.participantes);
+            estadoApp.ultimoGuardado = resultado.horaGuardado || obtenerHoraCliente();
+            ocultarCarga();
+            renderizarSesiones();
+            actualizarPanelSesion();
+            actualizarProgreso();
+            actualizarCambios();
+            mostrarMensaje(
+              `Guardado: ${resultado.presentes} presentes, ${resultado.retardos} retardos, ${resultado.ausentes} faltas y ${resultado.justificadas} justificadas.`,
+              'success'
+            );
           })
           .withFailureHandler((error) => {
             ocultarCarga();
-            actualizarControles();
             mostrarError(error);
           })
-          .guardarAsistencia(estado.sesionActual.id, participantes);
+          .guardarAsistencia(estadoApp.sesionActual.id, participantes);
       }
 
-      function actualizarEstadoSesion() {
-        const texto = estado.sesionActual ? estado.sesionActual.estado : 'Sin sesión';
-        elementos.estadoSesion.textContent = texto;
-        elementos.estadoSesion.classList.toggle('registered', texto === 'REGISTRADA');
+      function actualizarPanelSesion() {
+        const sesion = estadoApp.sesionActual;
+
+        if (!sesion) {
+          el.tituloSesion.textContent = 'Selecciona una sesión';
+          el.metaSesion.textContent = 'Elige una sesión para cargar participantes.';
+          el.estadoSesion.textContent = 'Sin sesión';
+          el.estadoSesion.classList.remove('registrada');
+          el.ultimoGuardado.textContent = '';
+          return;
+        }
+
+        el.tituloSesion.textContent = `Sesión ${String(sesion.numero).padStart(2, '0')}`;
+        el.metaSesion.textContent = `${sesion.tema} · ${sesion.fecha}`;
+        el.estadoSesion.textContent = sesion.estado;
+        el.estadoSesion.classList.toggle('registrada', sesion.estado === 'REGISTRADA');
+        el.ultimoGuardado.textContent = estadoApp.ultimoGuardado ? `Último guardado: ${estadoApp.ultimoGuardado}` : '';
       }
 
-      function actualizarContador() {
-        const presentes = estado.participantes.filter((participante) => participante.presente === true).length;
-        const total = estado.participantes.length || 30;
-        elementos.contador.textContent = `Presentes: ${presentes} / ${total}`;
+      function actualizarResumen() {
+        const conteo = contarEstados();
+        el.totalPresentes.textContent = conteo.PRESENTE;
+        el.totalRetardos.textContent = conteo.RETARDO;
+        el.totalAusentes.textContent = conteo.AUSENTE;
+        el.totalJustificadas.textContent = conteo.JUSTIFICADA;
       }
 
-      function actualizarControles(forzarDeshabilitado = false) {
-        const deshabilitar = forzarDeshabilitado || estado.cargando;
-        const tieneSesion = Boolean(estado.sesionActual);
-        const tieneParticipantes = estado.participantes.length > 0;
+      function contarEstados() {
+        return estadoApp.participantes.reduce((conteo, participante) => {
+          conteo[participante.estado] += 1;
+          return conteo;
+        }, { PRESENTE: 0, RETARDO: 0, AUSENTE: 0, JUSTIFICADA: 0 });
+      }
 
-        elementos.sesionSelect.disabled = deshabilitar || estado.sesiones.length === 0;
-        elementos.marcarTodosBtn.disabled = deshabilitar || !tieneParticipantes;
-        elementos.desmarcarTodosBtn.disabled = deshabilitar || !tieneParticipantes;
-        elementos.guardarBtn.disabled = deshabilitar || !tieneSesion || !tieneParticipantes;
+      function actualizarProgreso() {
+        const registradas = estadoApp.sesiones.filter((sesion) => sesion.estado === 'REGISTRADA').length;
+        el.progresoSesiones.textContent = `${registradas} de ${estadoApp.sesiones.length || 10} sesiones registradas`;
+      }
+
+      function actualizarCambios() {
+        el.cambios.classList.toggle('show', tieneCambiosSinGuardar());
+        actualizarControles();
+      }
+
+      function tieneCambiosSinGuardar() {
+        return estadoApp.baseParticipantes !== ''
+          && serializarEstados(estadoApp.participantes) !== estadoApp.baseParticipantes;
+      }
+
+      function serializarEstados(participantes) {
+        return participantes
+          .map((participante) => `${participante.id}:${participante.estado}`)
+          .sort()
+          .join('|');
+      }
+
+      function actualizarControles() {
+        const bloquear = estadoApp.cargando;
+        const haySesion = Boolean(estadoApp.sesionActual);
+        const hayParticipantes = estadoApp.participantes.length > 0;
+        const sesionRegistrada = haySesion && estadoApp.sesionActual.estado === 'REGISTRADA';
+        const puedeGuardar = haySesion
+          && hayParticipantes
+          && !bloquear
+          && (!sesionRegistrada || tieneCambiosSinGuardar());
+
+        el.buscar.disabled = bloquear || !hayParticipantes;
+        el.todosPresentesBtn.disabled = bloquear || !hayParticipantes;
+        el.todosAusentesBtn.disabled = bloquear || !hayParticipantes;
+        el.guardarBtn.disabled = !puedeGuardar;
       }
 
       function mostrarCarga(texto) {
-        estado.cargando = true;
-        elementos.textoCarga.textContent = texto;
-        elementos.cargando.classList.add('show');
+        estadoApp.cargando = true;
+        el.cargando.textContent = texto;
+        el.cargando.classList.add('show');
         actualizarControles();
       }
 
       function ocultarCarga() {
-        estado.cargando = false;
-        elementos.cargando.classList.remove('show');
+        estadoApp.cargando = false;
+        el.cargando.classList.remove('show');
         actualizarControles();
       }
 
       function mostrarMensaje(texto, tipo) {
-        elementos.mensaje.textContent = texto;
-        elementos.mensaje.className = `message show ${tipo}`;
+        el.mensaje.textContent = texto;
+        el.mensaje.className = `message show ${tipo}`;
       }
 
       function mostrarError(error) {
-        const texto = error && error.message ? error.message : 'Ocurrió un error inesperado.';
-        mostrarMensaje(texto, 'error');
+        mostrarMensaje(error && error.message ? error.message : 'Ocurrió un error inesperado.', 'error');
       }
 
       function limpiarMensaje() {
-        elementos.mensaje.textContent = '';
-        elementos.mensaje.className = 'message';
+        el.mensaje.textContent = '';
+        el.mensaje.className = 'message';
+      }
+
+      function abrirModal({ titulo, mensaje, cancelar, confirmar, onConfirmar }) {
+        modalEstado.abierto = true;
+        modalEstado.onConfirmar = onConfirmar;
+        modalEstado.focoPrevio = document.activeElement;
+        el.modalTitulo.textContent = titulo;
+        el.modalMensaje.textContent = mensaje;
+        el.modalCancelarBtn.textContent = cancelar;
+        el.modalConfirmarBtn.textContent = confirmar;
+        el.modal.classList.add('show');
+        el.modal.setAttribute('aria-hidden', 'false');
+        el.modalCancelarBtn.focus();
+      }
+
+      function cerrarModal() {
+        modalEstado.abierto = false;
+        modalEstado.onConfirmar = null;
+        el.modal.classList.remove('show');
+        el.modal.setAttribute('aria-hidden', 'true');
+
+        if (modalEstado.focoPrevio && typeof modalEstado.focoPrevio.focus === 'function') {
+          modalEstado.focoPrevio.focus();
+        }
+      }
+
+      function manejarTeclaGlobal(evento) {
+        if (!modalEstado.abierto) {
+          return;
+        }
+
+        if (evento.key === 'Escape') {
+          evento.preventDefault();
+          cerrarModal();
+          return;
+        }
+
+        if (evento.key === 'Tab') {
+          mantenerFocoEnModal(evento);
+        }
+      }
+
+      function mantenerFocoEnModal(evento) {
+        const enfocables = [el.modalCancelarBtn, el.modalConfirmarBtn];
+        const primero = enfocables[0];
+        const ultimo = enfocables[enfocables.length - 1];
+
+        if (evento.shiftKey && document.activeElement === primero) {
+          evento.preventDefault();
+          ultimo.focus();
+        } else if (!evento.shiftKey && document.activeElement === ultimo) {
+          evento.preventDefault();
+          primero.focus();
+        }
+      }
+
+      function formatearFechaCorta(fecha) {
+        if (!fecha) {
+          return '';
+        }
+
+        const partes = String(fecha).split('-');
+
+        if (partes.length !== 3) {
+          return fecha;
+        }
+
+        const meses = ['ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN', 'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC'];
+        return `${partes[2]} ${meses[Number(partes[1]) - 1] || ''}`;
+      }
+
+      function obtenerHoraCliente() {
+        return new Date().toLocaleTimeString('es-MX', {
+          hour: '2-digit',
+          minute: '2-digit',
+        });
       }
     </script>
   </body>
